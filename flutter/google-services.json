@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "465587432097",
+    "firebase_url": "https://parkinson-13ad1-default-rtdb.firebaseio.com",
+    "project_id": "parkinson-13ad1",
+    "storage_bucket": "parkinson-13ad1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465587432097:android:300be72a732cbb72bd9ee0",
+        "android_client_info": {
+          "package_name": "tn.enis.parkinson"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDw5lKhxOP9ROKVxv8lfwDzvnkCM5mVi6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
