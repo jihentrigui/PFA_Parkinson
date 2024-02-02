@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:signature/signature.dart';
@@ -24,6 +25,7 @@ class DrawingPageState extends State<DrawingPage> {
     exportBackgroundColor: Colors.white,
   );
 
+  bool isDrawing = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,20 +40,33 @@ class DrawingPageState extends State<DrawingPage> {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
               ),
-              child: Column(
-                children: [
-                  // Display the selected test image
-                  Image.asset(
-                    widget.testImagePath,
-                    height: 100, // Adjust the height as needed
-                  ),
-                  // Signature pad
-                  Signature(
-                    controller: _controller,
-                    height: 300, // Adjust the height as needed
-                    backgroundColor: Colors.white,
-                  ),
-                ],
+              child: Listener(
+                onPointerDown: (PointerDownEvent event) {
+                  setState(() {
+                    isDrawing = true;
+                  });
+                },
+                onPointerUp: (PointerUpEvent event) {
+                  setState(() {
+                    isDrawing = false;
+                  });
+                },
+                child: Column(
+                  children: [
+                    // Display the selected test image
+                    Image.asset(
+                      widget.testImagePath,
+                      height: 100, // Adjust the height as needed
+                    ),
+                    // Signature pad
+                    Signature(
+                      controller: _controller,
+                      height: 300, // Adjust the height as needed
+                      backgroundColor: Colors.white,
+                
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -76,6 +91,17 @@ class DrawingPageState extends State<DrawingPage> {
                   },
                   child: const Text('Comparer'),
                 ),
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isDrawing ? Colors.green : Colors.red,
+                  ),
+                  child: Text(
+                    isDrawing ? '1' : '0',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ],
             ),
           ],
@@ -86,16 +112,20 @@ class DrawingPageState extends State<DrawingPage> {
 
   void _saveSignature() async {
     try {
+  
+     
+   
       // Convert the drawn signature to an image
       final Uint8List? signatureData = await _controller.toPngBytes();
 
       if (signatureData == null) {
         return;
       }
-
+  
       // Convert Uint8List to base64 string
       final String base64Signature = base64Encode(signatureData);
 
+     
       // await FirebaseFirestore.instance.collection('signatures').add({
       //   'signature_data': base64Signature,
       //   'timestamp': FieldValue.serverTimestamp(),
