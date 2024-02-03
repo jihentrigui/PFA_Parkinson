@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,8 +25,12 @@ class DrawingPageState extends State<DrawingPage> {
     penColor: Colors.black,
     exportBackgroundColor: Colors.white,
   );
+  List<List<Map<String, dynamic>>> drawingsData = [];
 
   bool isDrawing = false;
+  Timer? drawingTimer;
+   int drawingCounter = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,11 +50,14 @@ class DrawingPageState extends State<DrawingPage> {
                   setState(() {
                     isDrawing = true;
                   });
+                      _startDrawingTimer();
                 },
                 onPointerUp: (PointerUpEvent event) {
                   setState(() {
                     isDrawing = false;
                   });
+                  _stopDrawingTimer();
+                  drawingCounter++;
                 },
                 child: Column(
                   children: [
@@ -61,6 +69,7 @@ class DrawingPageState extends State<DrawingPage> {
                     // Signature pad
                     Signature(
                       controller: _controller,
+                     
                       height: 300, // Adjust the height as needed
                       backgroundColor: Colors.white,
                 
@@ -109,11 +118,35 @@ class DrawingPageState extends State<DrawingPage> {
       ),
     );
   }
-
+  
+ void _onPointSigned() {
+    if (isDrawing) {
+      drawingTimer?.cancel(); // Cancel previous timer
+      drawingTimer = Timer.periodic(Duration(milliseconds: 1), (timer) {
+        drawingsData.last.add({
+          'x': _controller.points.last.offset.dx,
+          'y': _controller.points.last.offset.dy,
+        });
+      });
+    }
+  }
+   void _startDrawingTimer() {
+    drawingsData.add([]); // Start a new drawing
+    drawingTimer = Timer.periodic(Duration(milliseconds: 1), (timer) {
+      drawingsData.last.add({
+        'x': _controller.points.last.offset.dx,
+        'y': _controller.points.last.offset.dy,
+        'n' : drawingCounter ,
+      });
+    });
+  }
+void _stopDrawingTimer() {
+    drawingTimer?.cancel();
+  }
   void _saveSignature() async {
     try {
   
-     
+      _stopDrawingTimer();
    
       // Convert the drawn signature to an image
       final Uint8List? signatureData = await _controller.toPngBytes();
@@ -121,9 +154,18 @@ class DrawingPageState extends State<DrawingPage> {
       if (signatureData == null) {
         return;
       }
-  
+   List<Map<String, dynamic>> flattenedDrawingsData =
+        drawingsData.expand((list) => list).toList();
       // Convert Uint8List to base64 string
       final String base64Signature = base64Encode(signatureData);
+  // Save the signature data along with the coordinates
+    await FirebaseFirestore.instance.collection('signatures').add({
+      'signature_data': base64Signature,
+      'drawings_data': flattenedDrawingsData,
+      'drawing_counter': drawingCounter,
+      'timestamp': FieldValue.serverTimestamp(),
+      'test_name': widget.testName,
+    });
 
      
       // await FirebaseFirestore.instance.collection('signatures').add({
