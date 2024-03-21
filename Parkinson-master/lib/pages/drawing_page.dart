@@ -33,9 +33,9 @@ class DrawingPageState extends State<DrawingPage> {
 
   bool isDrawing = false;
   Timer? drawingTimer;
-   int drawingCounter = 0;
-DateTime? startTime;
-     
+  int drawingCounter = 0;
+  DateTime? startTime;
+
   //List<double> tabx = [];
 //List<double> taby = [];
 //List<int> tabn = [];
@@ -59,7 +59,7 @@ DateTime? startTime;
                   setState(() {
                     isDrawing = true;
                   });
-                      _startDrawingTimer();
+                  _startDrawingTimer();
                 },
                 onPointerUp: (PointerUpEvent event) {
                   setState(() {
@@ -78,10 +78,9 @@ DateTime? startTime;
                     // Signature pad
                     Signature(
                       controller: _controller,
-                     
+
                       height: 300, // Adjust the height as needed
                       backgroundColor: Colors.white,
-                
                     ),
                   ],
                 ),
@@ -127,8 +126,8 @@ DateTime? startTime;
       ),
     );
   }
-  
- void _onPointSigned() {
+
+  void _onPointSigned() {
     if (isDrawing) {
       drawingTimer?.cancel(); // Cancel previous timer
       drawingTimer = Timer.periodic(Duration(milliseconds: 1), (timer) {
@@ -137,68 +136,68 @@ DateTime? startTime;
           'y': _controller.points.last.offset.dy,
         });
       });
-
-
     }
   }
-   void _startDrawingTimer() {
+
+  void _startDrawingTimer() {
     drawingsData.add([]); // Start a new drawing
     startTime = DateTime.now(); // Store start time of drawing
-  timedrawingsData.add([]);
+    timedrawingsData.add([]);
 
     drawingTimer = Timer.periodic(Duration(milliseconds: 1), (timer) {
       drawingsData.last.add({
         'x': _controller.points.last.offset.dx,
         'y': _controller.points.last.offset.dy,
-        'n' : drawingCounter ,
+        'n': drawingCounter,
       });
-     // tabx.add(_controller.points.last.offset.dx);
+      // tabx.add(_controller.points.last.offset.dx);
       //taby.add(_controller.points.last.offset.dy);
       //tabn.add(drawingCounter);
     });
   }
-void _stopDrawingTimer() {
 
-if (timedrawingsData.isNotEmpty) {
-    timedrawingsData.last.add({
-      'n' : drawingCounter,
-      'time': DateTime.now().difference(startTime!).inMilliseconds, // Calculate time difference
-    });
-}
+  void _stopDrawingTimer() {
+    if (timedrawingsData.isNotEmpty) {
+      timedrawingsData.last.add({
+        'n': drawingCounter,
+        'time': DateTime.now()
+            .difference(startTime!)
+            .inMilliseconds, // Calculate time difference
+      });
+    }
     drawingTimer?.cancel();
   }
+
   void _saveSignature() async {
     try {
-  
       _stopDrawingTimer();
-   
+
       // Convert the drawn signature to an image
       final Uint8List? signatureData = await _controller.toPngBytes();
 
       if (signatureData == null) {
         return;
       }
-   List<Map<String, dynamic>> flattenedDrawingsData =
-        drawingsData.expand((list) => list).toList();
+      List<Map<String, dynamic>> flattenedDrawingsData =
+          drawingsData.expand((list) => list).toList();
 
-     List<Map<String, dynamic>> flattenedtimeDrawingsData =
-        timedrawingsData.expand((list) => list).toList();    
+      List<Map<String, dynamic>> flattenedtimeDrawingsData =
+          timedrawingsData.expand((list) => list).toList();
       // Convert Uint8List to base64 string
       final String base64Signature = base64Encode(signatureData);
-  // Save the signature data along with the coordinates
-    await FirebaseFirestore.instance.collection('signatures').add({
-      'signature_data': base64Signature,
-      'drawings_data': flattenedDrawingsData,
-      //'X' : tabx,
-      //'Y' : taby,
-      //'n' : tabn,
-      'drawing_counter': drawingCounter,
-      'drawing_time':flattenedtimeDrawingsData,
-      'timestamp': FieldValue.serverTimestamp(),
-      'test_name': widget.testName,
-    });
+      // Save the signature data along with the coordinates
+      await FirebaseFirestore.instance.collection('signatures').add({
+        'signature_data': base64Signature,
+        'drawings_data': flattenedDrawingsData,
+        //'X' : tabx,
+        //'Y' : taby,
+        //'n' : tabn,
+        'drawing_counter': drawingCounter,
+        'drawing_time': flattenedtimeDrawingsData,
+        'timestamp': FieldValue.serverTimestamp(),
+        'test_name': widget.testName,
+      });
 
-     
       // await FirebaseFirestore.instance.collection('signatures').add({
       //   'signature_data': base64Signature,
       //   'timestamp': FieldValue.serverTimestamp(),
@@ -258,6 +257,9 @@ if (timedrawingsData.isNotEmpty) {
     return mse;
   }
 }
+
+// ------------------- Calcul de l'entropie ---------------------  //
+
 bool isVector(List<dynamic> list) {
   // Vérifie si la liste est unidimensionnelle
   for (var element in list) {
@@ -267,11 +269,15 @@ bool isVector(List<dynamic> list) {
   }
   return true;
 }
+
 double standardDeviation(List<double> signal) {
   double mean = signal.reduce((a, b) => a + b) / signal.length;
-  double variance = signal.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b) / signal.length;
+  double variance =
+      signal.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b) /
+          signal.length;
   return sqrt(variance);
 }
+
 List<double> calculateDistances(List<List<double>> matches, String distType) {
   List<double> distances = [];
   for (int i = 0; i < matches.length; i++) {
@@ -282,6 +288,7 @@ List<double> calculateDistances(List<List<double>> matches, String distType) {
   }
   return distances;
 }
+
 double calculateDistance(List<double> a, List<double> b, String distType) {
   if (distType == 'chebyshev') {
     return chebyshevDistance(a, b);
@@ -289,6 +296,7 @@ double calculateDistance(List<double> a, List<double> b, String distType) {
     throw ArgumentError('Unsupported distance type: $distType');
   }
 }
+
 double chebyshevDistance(List<double> a, List<double> b) {
   double maxDiff = 0.0;
   for (int i = 0; i < a.length; i++) {
@@ -299,6 +307,7 @@ double chebyshevDistance(List<double> a, List<double> b) {
   }
   return maxDiff;
 }
+
 int countMatches(List<double> distances, double r, double sigma) {
   int count = 0;
   for (double distance in distances) {
@@ -309,9 +318,12 @@ int countMatches(List<double> distances, double r, double sigma) {
   return count;
 }
 
-double sampen(List<double> signal, int m, double r,{String distType = 'chebyshev'}) {
-     double value ;
-   // Error detection and defaults
+// ---- fonction sampen ----- //
+
+double sampen(List<double> signal, int m, double r,
+    {String distType = 'chebyshev'}) {
+  double value;
+  // Error detection and defaults
   if (m == null || r == null) {
     throw ArgumentError('Not enough parameters.');
   }
@@ -326,7 +338,8 @@ double sampen(List<double> signal, int m, double r,{String distType = 'chebyshev
     throw ArgumentError('Distance must be a string.');
   }
   if (m >= signal.length) {
-    throw ArgumentError('Embedding dimension must be smaller than the signal length (m < N).');
+    throw ArgumentError(
+        'Embedding dimension must be smaller than the signal length (m < N).');
   }
 
   //Useful parameters
@@ -334,8 +347,9 @@ double sampen(List<double> signal, int m, double r,{String distType = 'chebyshev
   double sigma = standardDeviation(signal); // Standard deviation
 
   //Create the matrix of matches
-  List<List<double>> matches = List.generate(m + 1, (_) => List<double>.filled(signal.length - m + 1, double.nan));
-  
+  List<List<double>> matches = List.generate(
+      m + 1, (_) => List<double>.filled(signal.length - m + 1, double.nan));
+
   for (int i = 0; i < m + 1; i++) {
     for (int j = 0; j < signal.length + 1 - i; j++) {
       matches[i][j] = signal[j + i];
@@ -344,11 +358,11 @@ double sampen(List<double> signal, int m, double r,{String distType = 'chebyshev
 
   //Check the matches for m
   List<double> d_m = calculateDistances(matches.sublist(0, m), distType);
- if (d_m.isEmpty) {
+  if (d_m.isEmpty) {
     // If B = 0, SampEn is not defined: no regularity detected
     // Note: Upper bound is returned
     value = double.infinity;
- } else {
+  } else {
     // Check the matches for m+1
     List<double> d_m1 = calculateDistances(matches.sublist(0, m + 1), distType);
     // Compute A and B
@@ -357,18 +371,34 @@ double sampen(List<double> signal, int m, double r,{String distType = 'chebyshev
     int A = countMatches(d_m1, r, sigma);
     // Sample entropy value
     //Note: norm. comes from [nchoosek(N-m+1,2)/nchoosek(N-m,2)]
-     value = -log((A / B) * ((N - m + 1) / (N - m - 1)));
+    value = -log((A / B) * ((N - m + 1) / (N - m - 1)));
   }
-    //If A=0 or B=0, SampEn would return an infinite value. However, the
-    // lowest non-zero conditional probability that SampEn should
-    // report is A/B = 2/[(N-m-1)(N-m)]
-    if (value.isInfinite) {
+  //If A=0 or B=0, SampEn would return an infinite value. However, the
+  // lowest non-zero conditional probability that SampEn should
+  // report is A/B = 2/[(N-m-1)(N-m)]
+  if (value.isInfinite) {
     value = -log(2 / ((N - m - 1) * (N - m)));
   }
 
   return value;
+}
 
+// ---------- Difference between initial and final heights --------- // 
 
+double calculateHeightDifference(List<List<double>> datafinal) {
+  int numRows = datafinal.length;
+  int numberSurQuatre = (numRows ~/ 4).toInt();
 
+  List<List<double>> dataInitialHeight = datafinal.sublist(0, numberSurQuatre);
+  List<List<double>> dataFinalHeight =
+      datafinal.sublist(numberSurQuatre * 3, numRows);
 
+  double maxDataInitialHeight = _getMax(dataInitialHeight.map((e) => e[1]));
+  double maxDataFinalHeight = _getMax(dataFinalHeight.map((e) => e[1]));
+
+  return (maxDataInitialHeight - maxDataFinalHeight).abs();
+}
+
+double _getMax(Iterable<double> values) {
+  return values.isNotEmpty ? values.reduce(max) : double.negativeInfinity;
 }
