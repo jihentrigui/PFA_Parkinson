@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pfa_parkinson/pages/home_page.dart';
-import 'package:pfa_parkinson/pages/register_page.dart';
-import 'package:pfa_parkinson/components/my_textfield.dart';
-import 'package:pfa_parkinson/components/my_button.dart';
-import 'package:pfa_parkinson/components/square_tile.dart';
+import 'package:Parkinson/pages/home_page.dart';
+import 'package:Parkinson/pages/register_page.dart';
+import 'package:Parkinson/components/my_textfield.dart';
+import 'package:Parkinson/components/my_button.dart';
+import 'package:Parkinson/components/square_tile.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);

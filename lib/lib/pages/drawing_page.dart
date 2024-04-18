@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:signature/signature.dart';
 import 'package:image/image.dart' as img;
 // import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
 
 class DrawingPage extends StatefulWidget {
   final String testName;
@@ -24,7 +23,6 @@ class DrawingPage extends StatefulWidget {
 }
 
 class DrawingPageState extends State<DrawingPage> {
-  String? specificResult;
   final SignatureController _controller = SignatureController(
     penStrokeWidth: 5,
     penColor: Colors.black,
@@ -106,13 +104,9 @@ class DrawingPageState extends State<DrawingPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    //_compareWithReferenceImage();
-                    compareImages();
+                    _compareWithReferenceImage();
                   },
                   child: const Text('Comparer'),
-                ),
-                Container(
-                  child: specificResult != null ? Text(specificResult!): Container(),
                 ),
                 Container(
                   padding: EdgeInsets.all(8.0),
@@ -173,7 +167,7 @@ class DrawingPageState extends State<DrawingPage> {
     }
     drawingTimer?.cancel();
   }
- late String docId;
+
   void _saveSignature() async {
     try {
       _stopDrawingTimer();
@@ -192,7 +186,7 @@ class DrawingPageState extends State<DrawingPage> {
       // Convert Uint8List to base64 string
       final String base64Signature = base64Encode(signatureData);
       // Save the signature data along with the coordinates
-      Map<String, dynamic> dataToSave ={
+      await FirebaseFirestore.instance.collection('signatures').add({
         'signature_data': base64Signature,
         'drawings_data': flattenedDrawingsData,
         //'X' : tabx,
@@ -202,14 +196,8 @@ class DrawingPageState extends State<DrawingPage> {
         'drawing_time': flattenedtimeDrawingsData,
         'timestamp': FieldValue.serverTimestamp(),
         'test_name': widget.testName,
-        'prediction_result' : null , 
-      };
+      });
 
-      DocumentReference docRef = await FirebaseFirestore.instance.collection('signatures').add(dataToSave);
-      docId = docRef.id;
-
-    // Utiliser l'ID du document comme nécessaire
-      print('ID du document ajouté : $docId');
       // await FirebaseFirestore.instance.collection('signatures').add({
       //   'signature_data': base64Signature,
       //   'timestamp': FieldValue.serverTimestamp(),
@@ -225,31 +213,6 @@ class DrawingPageState extends State<DrawingPage> {
   void _resetSignature() {
     _controller.clear();
   }
-
-//    ************ tester l'image *********** /
-
-  Future<void> compareImages() async {
-    DocumentReference specificDocRef = FirebaseFirestore.instance
-        .collection('signatures')
-        .doc(docId);
-    try {
-      DocumentSnapshot docSnapshot = await specificDocRef.get();
-      if (docSnapshot.exists) {
-        Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
-        setState(() {
-          specificResult = data['prediction_result'];
-        });
-      } else {
-        setState(() {
-          specificResult = null;
-        });
-      }
-    } catch (e) {
-      print('Erreur lors de la récupération des données depuis Firebase: $e');
-    }
-  }
-
-  // ********************************************** //
 
   Future<void> _compareWithReferenceImage() async {
     // Convert the drawn signature to an image
@@ -420,7 +383,7 @@ double sampen(List<double> signal, int m, double r,
   return value;
 }
 
-// ---------- Difference between initial and final heights --------- //
+// ---------- Difference between initial and final heights --------- // 
 
 double calculateHeightDifference(List<List<double>> datafinal) {
   int numRows = datafinal.length;

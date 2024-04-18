@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:pfa_parkinson/pages/conseil_page.dart';
-import 'package:pfa_parkinson/pages/profile_page.dart';
-import 'package:pfa_parkinson/pages/test_page.dart';
-import 'package:pfa_parkinson/pages/notification.dart';
-import 'package:pfa_parkinson/pages/settings.dart'; 
+import 'package:Parkinson/pages/conseil_page.dart';
+import 'package:Parkinson/pages/profile_page.dart';
+import 'package:Parkinson/pages/test_page.dart';
+import 'package:Parkinson/pages/notification.dart';
+import 'package:Parkinson/pages/settings.dart'; // Importation de la page Settings
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+
   List<Widget> tabs = <Widget>[
     const ConseilPage(),
     const TestPage(),
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.account_circle),
             label: 'Profile',
           ),
-                    BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: 'Notifications',
           ),

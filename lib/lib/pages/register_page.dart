@@ -1,7 +1,7 @@
-import 'package:pfa_parkinson/components/my_dropdownField.dart';
+import 'package:Parkinson/components/my_dropdownField.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:pfa_parkinson/pages/login_page.dart';
+import 'package:Parkinson/pages/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../components/my_button.dart';
